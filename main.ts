@@ -14,10 +14,19 @@ const ENTRY =
 const outPath = process.env.ENTRY_OUTPUT_PATH ?? "/output/entry.txt";
 
 // The gate requires 1–200 Unicode code points, not only white space.
-const length = [...ENTRY].length;
-if (length < 1 || length > 200 || ENTRY.trim().length === 0) {
-  throw new Error(`entry must be 1-200 characters, got ${length}`);
+// Count code points (spread), not UTF-16 units, so the em dash and any
+// astral characters are measured the way the judge measures them.
+function validateEntry(text) {
+  const length = [...text].length;
+  if (length < 1 || length > 200 || text.trim().length === 0) {
+    throw new Error(`entry must be 1-200 characters, got ${length}`);
+  }
 }
 
-mkdirSync(dirname(outPath), { recursive: true });
-writeFileSync(outPath, ENTRY, "utf8");
+function main() {
+  validateEntry(ENTRY);
+  mkdirSync(dirname(outPath), { recursive: true });
+  writeFileSync(outPath, ENTRY, "utf8");
+}
+
+main();
